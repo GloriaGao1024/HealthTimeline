@@ -1,3 +1,5 @@
+console.log("app.js loaded");
+
 const STORAGE_KEY = "health_timeline_mvp_v1";
 const ALIASES = {
   "总胆固醇": "TC", "TC": "TC", "胆固醇": "TC",
@@ -76,6 +78,7 @@ let draft = [];
 let sourceFile = null;
 let selectedFile = null;
 let selectedIndicator = null;
+const REPORTS_BUCKET = "reports";
 
 function loadState() {
   try {
@@ -109,16 +112,44 @@ document.querySelectorAll(".nav button").forEach(btn => {
   });
 });
 
-const fileInput = document.getElementById("fileInput");
-document.getElementById("pickFile").addEventListener("click", () => fileInput.click());
-document.getElementById("dropZone").addEventListener("dragover", e => e.preventDefault());
-document.getElementById("dropZone").addEventListener("drop", e => {
-  e.preventDefault();
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener("change", e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+function bindFilePickerEvents() {
+  const fileInput = document.getElementById("fileInput");
+  const pickFile = document.getElementById("pickFile");
+  const dropZone = document.getElementById("dropZone");
 
-function handleFile(file) {
+  console.log("fileInput", fileInput);
+  console.log("pickFile", pickFile);
+
+  if (!fileInput || !pickFile || !dropZone) return;
+
+  pickFile.addEventListener("click", () => {
+    fileInput.click();
+  });
+  dropZone.addEventListener("dragover", e => e.preventDefault());
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    console.log("file selected", file.name);
+    handleFile(file);
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bindFilePickerEvents);
+} else {
+  bindFilePickerEvents();
+}
+
+async function handleFile(file) {
+  if (!isSupportedReportFile(file)) {
+    alert("仅支持上传图片或PDF文件");
+    return;
+  }
+
   selectedFile = file;
   sourceFile = { name: file.name, type: file.type, size: file.size };
   const preview = document.getElementById("preview");
@@ -141,6 +172,33 @@ function handleFile(file) {
     ocrStatus.textContent = "当前文件类型不能 OCR，请粘贴文字或手动录入。";
   }
   showToast("文件已本地预览，请粘贴 OCR 文本或载入示例报告");
+
+  try {
+    await uploadReportFile(file);
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "上传失败");
+  }
+}
+
+function isSupportedReportFile(file) {
+  return file.type.startsWith("image/") || file.type === "application/pdf";
+}
+
+async function uploadReportFile(file) {
+  const supabase = await window.getSupabaseClient();
+  const fileName = `${Date.now()}${file.name}`;
+  const { error } = await supabase.storage.from(REPORTS_BUCKET).upload(fileName, file);
+
+  if (error) {
+    throw error;
+  }
+
+  const { data } = supabase.storage.from(REPORTS_BUCKET).getPublicUrl(fileName);
+  const url = data.publicUrl;
+  console.log("uploaded url", url);
+  alert("上传成功");
+  return url;
 }
 
 document.getElementById("ocrBtn").addEventListener("click", recognizeSelectedFile);
