@@ -81,6 +81,7 @@ let selectedIndicator = null;
 let familyMembers = [];
 let activeFamilyMemberId = "";
 const REPORTS_BUCKET = "reports";
+const DOCUMENTS_TABLE = "documents";
 
 function loadState() {
   try {
@@ -162,6 +163,33 @@ function renderFamilyMembers(message = "") {
 
 function currentFamilyMemberName() {
   return (familyMembers.find(member => String(member.id) === String(activeFamilyMemberId)) || {}).name || "当前成员";
+}
+
+async function ensureActiveFamilyMember(supabase) {
+  if (activeFamilyMemberId) return activeFamilyMemberId;
+
+  const { data, error } = await supabase
+    .from("family_members")
+    .select("*")
+    .limit(1);
+
+  if (error) throw error;
+
+  familyMembers = data || [];
+  if (!familyMembers.length) {
+    const { data: created, error: createError } = await supabase
+      .from("family_members")
+      .insert({ name: "我" })
+      .select("*")
+      .single();
+
+    if (createError) throw createError;
+    familyMembers = created ? [created] : [];
+  }
+
+  activeFamilyMemberId = familyMembers[0]?.id || "";
+  renderFamilyMembers();
+  return activeFamilyMemberId;
 }
 
 async function addFamilyMember() {
@@ -291,8 +319,28 @@ async function uploadReportFile(file) {
   const { data } = supabase.storage.from(REPORTS_BUCKET).getPublicUrl(fileName);
   const url = data.publicUrl;
   console.log("uploaded url", url);
+  await createDocumentRecord(supabase, file, url);
   alert("上传成功");
   return url;
+}
+
+async function createDocumentRecord(supabase, file, storageUrl) {
+  const memberId = await ensureActiveFamilyMember(supabase);
+  const documentRecord = {
+    member_id: memberId,
+    title: file.name,
+    category: document.getElementById("reportType").value || "体检报告",
+    report_date: document.getElementById("reportDate").value || today(),
+    source_type: file.type === "application/pdf" ? "pdf" : "image",
+    storage_url: storageUrl,
+    created_at: new Date().toISOString()
+  };
+
+  const { error } = await supabase
+    .from(DOCUMENTS_TABLE)
+    .insert(documentRecord);
+
+  if (error) throw error;
 }
 
 document.getElementById("ocrBtn").addEventListener("click", recognizeSelectedFile);
