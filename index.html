@@ -15,6 +15,7 @@
     </div>
     <div class="nav">
       <button class="active" data-screen="dashboard">首页闭环</button>
+      <button data-screen="upload">上传</button>
       <button data-screen="archive">健康档案</button>
       <button data-screen="trends">指标趋势</button>
       <button data-screen="assistant">AI 问答</button>
@@ -52,6 +53,22 @@
     </section>
 
     <section class="screen active" id="dashboard">
+      <div class="grid summary-grid">
+        <div class="card">
+          <h2 class="section-title">快速上传</h2>
+          <p class="lead">上传体检报告图片或 PDF，保存原始文件，并继续完成指标解析和健康档案整理。</p>
+          <div class="btns" style="margin-top:14px">
+            <button class="btn primary" data-jump-screen="upload">上传报告</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2 class="section-title">当前概览</h2>
+          <p class="lead">上方卡片展示已保存报告、结构化指标、异常指标和最近报告日期。进入上传页可继续添加新的体检资料。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="upload">
       <div class="grid workspace">
         <div class="card">
           <h2 class="section-title">1. 上传或粘贴报告</h2>

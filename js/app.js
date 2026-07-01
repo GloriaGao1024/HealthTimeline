@@ -224,14 +224,17 @@ async function addFamilyMember() {
 
 initFamilyMembers();
 
+function activateScreen(screen) {
+  document.querySelectorAll(".nav button").forEach(x => x.classList.toggle("active", x.dataset.screen === screen));
+  document.querySelectorAll(".screen").forEach(x => x.classList.toggle("active", x.id === screen));
+  renderAll();
+}
+
 document.querySelectorAll(".nav button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".nav button").forEach(x => x.classList.remove("active"));
-    document.querySelectorAll(".screen").forEach(x => x.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.screen).classList.add("active");
-    renderAll();
-  });
+  btn.addEventListener("click", () => activateScreen(btn.dataset.screen));
+});
+document.querySelectorAll("[data-jump-screen]").forEach(btn => {
+  btn.addEventListener("click", () => activateScreen(btn.dataset.jumpScreen));
 });
 
 function bindFilePickerEvents() {
