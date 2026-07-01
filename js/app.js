@@ -80,6 +80,8 @@ let selectedFile = null;
 let selectedIndicator = null;
 let familyMembers = [];
 let activeFamilyMemberId = "";
+let documents = [];
+let documentsLoaded = false;
 const REPORTS_BUCKET = "reports";
 const DOCUMENTS_TABLE = "documents";
 
@@ -133,6 +135,7 @@ async function initFamilyMembers() {
 
     activeFamilyMemberId = familyMembers[0]?.id || "";
     renderFamilyMembers();
+    renderArchive();
   } catch (error) {
     console.error(error);
     renderFamilyMembers("家庭成员加载失败，请检查 Supabase family_members 表");
@@ -223,6 +226,7 @@ async function addFamilyMember() {
 }
 
 initFamilyMembers();
+initDocuments();
 
 function activateScreen(screen) {
   document.querySelectorAll(".nav button").forEach(x => x.classList.toggle("active", x.dataset.screen === screen));
@@ -647,44 +651,139 @@ function compareSentence(items) {
 }
 
 function renderStats() {
-  document.getElementById("statReports").textContent = state.reports.length;
+  document.getElementById("statReports").textContent = documentsLoaded ? documents.length : state.reports.length;
   document.getElementById("statIndicators").textContent = state.indicators.length;
   document.getElementById("statAbnormal").textContent = state.indicators.filter(i => i.status === "high" || i.status === "low").length;
-  const latest = [...state.reports].sort((a, b) => b.reportDate.localeCompare(a.reportDate))[0];
-  document.getElementById("statLatest").textContent = latest ? latest.reportDate.slice(5) : "-";
+  const latestDocument = [...documents].sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))[0];
+  const latestReport = [...state.reports].sort((a, b) => b.reportDate.localeCompare(a.reportDate))[0];
+  document.getElementById("statLatest").textContent = latestDocument ? formatDate(latestDocument.report_date || latestDocument.created_at).slice(5) : latestReport ? latestReport.reportDate.slice(5) : "-";
 }
 
-function renderArchive() {
+async function initDocuments() {
+  renderArchive();
+
+  try {
+    const supabase = await window.getSupabaseClient();
+    const { data, error } = await supabase
+      .from(DOCUMENTS_TABLE)
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    documents = data || [];
+    documentsLoaded = true;
+    renderAll();
+  } catch (error) {
+    console.error(error);
+    documentsLoaded = true;
+    documents = [];
+    renderArchive("Supabase documents 读取失败，请检查 documents 表");
+  }
+}
+
+function renderArchive(message = "") {
+  if (documentsLoaded || message) {
+    renderDocumentsArchive(message);
+    return;
+  }
+
+  document.getElementById("archiveList").innerHTML = `<div class="empty">正在加载档案记录...</div>`;
+}
+
+function renderDocumentsArchive(message = "") {
   const yearFilter = document.getElementById("yearFilter");
-  const years = [...new Set(state.reports.map(r => r.reportDate.slice(0, 4)))].sort((a, b) => b.localeCompare(a));
+  const years = [...new Set(documents.map(d => formatDate(d.report_date || d.created_at).slice(0, 4)).filter(Boolean))].sort((a, b) => b.localeCompare(a));
   const current = yearFilter.value;
   yearFilter.innerHTML = `<option value="">全部年份</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
   if (years.includes(current)) yearFilter.value = current;
   const type = document.getElementById("typeFilter").value.trim();
-  const inst = document.getElementById("instFilter").value.trim();
-  const st = document.getElementById("statusFilter").value;
-  const rows = state.reports.filter(r => {
-    const inds = state.indicators.filter(i => i.reportId === r.id);
-    return (!yearFilter.value || r.reportDate.startsWith(yearFilter.value)) &&
-      (!type || r.reportType.includes(type)) &&
-      (!inst || r.institution.includes(inst)) &&
-      (!st || (st === "abnormal" ? inds.some(i => i.status === "high" || i.status === "low") : inds.every(i => i.status === "ok")));
-  }).sort((a, b) => b.reportDate.localeCompare(a.reportDate));
-  document.getElementById("archiveList").innerHTML = rows.length ? rows.map(r => {
-    const inds = state.indicators.filter(i => i.reportId === r.id);
-    const ab = inds.filter(i => i.status === "high" || i.status === "low");
-    return `<div class="report-row">
+  const rows = documents.filter(d => {
+    const date = formatDate(d.report_date || d.created_at);
+    return (!yearFilter.value || date.startsWith(yearFilter.value)) &&
+      (!type || String(d.category || "").includes(type));
+  }).sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
+
+  if (message) {
+    document.getElementById("archiveList").innerHTML = `<div class="empty">${escapeHtml(message)}</div>`;
+    return;
+  }
+
+  document.getElementById("archiveList").innerHTML = rows.length ? rows.map(d => {
+    const date = formatDate(d.report_date || d.created_at);
+    return `<div class="report-row clickable" data-document-id="${escapeHtml(d.id)}">
       <div>
-        <h3>${escapeHtml(r.reportDate)} · ${escapeHtml(r.reportType)} <span class="tag ${ab.length ? "high" : "ok"}">${ab.length ? ab.length + " 项异常" : "正常"}</span></h3>
-        <p>${escapeHtml(r.institution)} · ${inds.length} 项指标 · 来源：${escapeHtml(r.sourceFile ? r.sourceFile.name : "手动录入")}</p>
-        <p>${inds.map(i => `${escapeHtml(i.name)} ${escapeHtml(i.value)}${escapeHtml(i.unit || "")}`).join(" · ")}</p>
+        <h3>${escapeHtml(date)} · ${escapeHtml(d.title || "未命名档案")} <span class="tag pending">${escapeHtml(d.category || "资料")}</span></h3>
+        <p>${escapeHtml(memberNameById(d.member_id))} · ${escapeHtml(d.source_type || "上传")} · 来源：Supabase documents</p>
+        <p>${escapeHtml(d.storage_url || "")}</p>
       </div>
-      <button class="btn danger" data-del="${r.id}">删除</button>
     </div>`;
   }).join("") : `<div class="empty">还没有符合条件的报告。</div>`;
-  document.querySelectorAll("[data-del]").forEach(btn => btn.addEventListener("click", () => deleteReport(btn.dataset.del)));
+
+  document.querySelectorAll("[data-document-id]").forEach(row => {
+    row.addEventListener("click", () => openDocumentDetail(row.dataset.documentId));
+  });
 }
-["yearFilter","typeFilter","instFilter","statusFilter"].forEach(id => document.getElementById(id).addEventListener("input", renderArchive));
+["yearFilter","typeFilter","instFilter","statusFilter"].forEach(id => document.getElementById(id).addEventListener("input", () => renderArchive()));
+
+function formatDate(value) {
+  return String(value || "").slice(0, 10);
+}
+
+function memberNameById(memberId) {
+  return (familyMembers.find(member => String(member.id) === String(memberId)) || {}).name || "未指定成员";
+}
+
+function openDocumentDetail(documentId) {
+  const documentRecord = documents.find(d => String(d.id) === String(documentId));
+  if (!documentRecord) return;
+
+  const modal = document.getElementById("detailModal");
+  document.getElementById("detailTitle").textContent = documentRecord.title || "档案详情";
+  document.getElementById("detailSubtitle").textContent = `${formatDate(documentRecord.report_date || documentRecord.created_at)} · ${documentRecord.category || "资料"}`;
+  document.getElementById("detailBody").innerHTML = buildDocumentDetail(documentRecord);
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeDocumentDetail() {
+  const modal = document.getElementById("detailModal");
+  modal.classList.remove("show");
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function buildDocumentDetail(documentRecord) {
+  const storageUrl = documentRecord.storage_url || "";
+  const preview = storageUrl
+    ? documentRecord.source_type === "pdf" || /\.pdf($|\?)/i.test(storageUrl)
+      ? `<embed src="${escapeHtml(storageUrl)}" type="application/pdf">`
+      : `<img src="${escapeHtml(storageUrl)}" alt="原始资料预览">`
+    : `<div class="empty">没有可预览的 storage_url。</div>`;
+
+  return `<div class="detail-grid">
+      <div class="detail-kv"><small>标题</small><strong>${escapeHtml(documentRecord.title || "未命名档案")}</strong></div>
+      <div class="detail-kv"><small>所属家庭成员</small><strong>${escapeHtml(memberNameById(documentRecord.member_id))}</strong></div>
+      <div class="detail-kv"><small>资料类型</small><strong>${escapeHtml(documentRecord.category || "资料")}</strong></div>
+      <div class="detail-kv"><small>上传日期</small><strong>${escapeHtml(formatDate(documentRecord.created_at))}</strong></div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-kv"><small>storage_url</small><strong>${escapeHtml(storageUrl)}</strong></div>
+      <div class="detail-kv"><small>报告日期</small><strong>${escapeHtml(formatDate(documentRecord.report_date))}</strong></div>
+      <div class="detail-kv"><small>来源类型</small><strong>${escapeHtml(documentRecord.source_type || "上传")}</strong></div>
+      <div class="detail-kv"><small>档案 ID</small><strong>${escapeHtml(documentRecord.id || "")}</strong></div>
+    </div>
+    <h3 class="section-title">原始图片/PDF预览</h3>
+    <div class="detail-preview">${preview}</div>
+    <h3 class="section-title">OCR 内容</h3>
+    <div class="empty" style="padding:14px">暂未接入 OCR。</div>
+    <h3 class="section-title" style="margin-top:16px">指标列表</h3>
+    <div class="empty" style="padding:14px">暂未关联指标。</div>`;
+}
+
+document.getElementById("closeDetail").addEventListener("click", closeDocumentDetail);
+document.getElementById("detailModal").addEventListener("click", e => {
+  if (e.target.id === "detailModal") closeDocumentDetail();
+});
 
 function deleteReport(reportId) {
   state.reports = state.reports.filter(r => r.id !== reportId);

@@ -200,6 +200,18 @@
   </main>
 </div>
 <div class="toast" id="toast"></div>
+<div class="detail-modal" id="detailModal" aria-hidden="true">
+  <div class="detail-panel">
+    <div class="detail-head">
+      <div>
+        <h2 id="detailTitle">档案详情</h2>
+        <p id="detailSubtitle"></p>
+      </div>
+      <button class="btn" id="closeDetail" type="button">关闭</button>
+    </div>
+    <div id="detailBody"></div>
+  </div>
+</div>
 
 <script src="node_modules/@supabase/supabase-js/dist/umd/supabase.js"></script>
 <script src="lib/supabase.js"></script>
