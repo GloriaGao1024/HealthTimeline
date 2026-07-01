@@ -78,6 +78,8 @@ let draft = [];
 let sourceFile = null;
 let selectedFile = null;
 let selectedIndicator = null;
+let familyMembers = [];
+let activeFamilyMemberId = "";
 const REPORTS_BUCKET = "reports";
 
 function loadState() {
@@ -101,6 +103,98 @@ function escapeHtml(s) { return String(s || "").replace(/[&<>"']/g, m => ({ "&":
 document.getElementById("reportDate").value = today();
 document.getElementById("institution").value = "本地体检机构";
 document.getElementById("reportType").value = "年度体检";
+document.getElementById("toggleMemberForm").addEventListener("click", () => document.getElementById("memberForm").classList.toggle("show"));
+document.getElementById("confirmMemberAdd").addEventListener("click", addFamilyMember);
+document.getElementById("memberNameInput").addEventListener("keydown", e => { if (e.key === "Enter") addFamilyMember(); });
+
+async function initFamilyMembers() {
+  renderFamilyMembers("正在加载家庭成员...");
+
+  try {
+    const supabase = await window.getSupabaseClient();
+    const { data, error } = await supabase
+      .from("family_members")
+      .select("*");
+
+    if (error) throw error;
+
+    familyMembers = data || [];
+    if (!familyMembers.length) {
+      const { data: created, error: createError } = await supabase
+        .from("family_members")
+        .insert({ name: "我" })
+        .select("*")
+        .single();
+
+      if (createError) throw createError;
+      familyMembers = created ? [created] : [];
+    }
+
+    activeFamilyMemberId = familyMembers[0]?.id || "";
+    renderFamilyMembers();
+  } catch (error) {
+    console.error(error);
+    renderFamilyMembers("家庭成员加载失败，请检查 Supabase family_members 表");
+  }
+}
+
+function renderFamilyMembers(message = "") {
+  const tabs = document.getElementById("memberTabs");
+  if (!tabs) return;
+
+  if (message) {
+    tabs.innerHTML = `<div class="member-empty">${escapeHtml(message)}</div>`;
+    return;
+  }
+
+  tabs.innerHTML = familyMembers.length
+    ? familyMembers.map(member => `<button class="member-chip ${String(member.id) === String(activeFamilyMemberId) ? "active" : ""}" data-family-member="${escapeHtml(member.id)}">${escapeHtml(member.name || "未命名")}</button>`).join("")
+    : `<div class="member-empty">还没有家庭成员。</div>`;
+
+  tabs.querySelectorAll("[data-family-member]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeFamilyMemberId = btn.dataset.familyMember;
+      renderFamilyMembers();
+      showToast(`已切换到 ${currentFamilyMemberName()} 的健康档案`);
+    });
+  });
+}
+
+function currentFamilyMemberName() {
+  return (familyMembers.find(member => String(member.id) === String(activeFamilyMemberId)) || {}).name || "当前成员";
+}
+
+async function addFamilyMember() {
+  const input = document.getElementById("memberNameInput");
+  const name = input.value.trim();
+  if (!name) {
+    showToast("请输入成员姓名");
+    return;
+  }
+
+  try {
+    const supabase = await window.getSupabaseClient();
+    const { data, error } = await supabase
+      .from("family_members")
+      .insert({ name })
+      .select("*")
+      .single();
+
+    if (error) throw error;
+
+    familyMembers.push(data);
+    activeFamilyMemberId = data.id;
+    input.value = "";
+    document.getElementById("memberForm").classList.remove("show");
+    renderFamilyMembers();
+    showToast(`已添加 ${name}`);
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "添加家庭成员失败");
+  }
+}
+
+initFamilyMembers();
 
 document.querySelectorAll(".nav button").forEach(btn => {
   btn.addEventListener("click", () => {

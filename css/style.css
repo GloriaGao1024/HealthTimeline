@@ -25,6 +25,15 @@
   .nav button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; color: var(--muted); padding: 11px 12px; border-radius: 10px; text-align: left; }
   .nav button.active { background: var(--mint); color: var(--teal-deep); font-weight: 700; }
   .privacy-note { margin-top: auto; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); font-size: 12px; color: var(--muted); }
+  .member-panel { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); }
+  .member-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 800; }
+  .member-head button { border: 0; background: transparent; color: var(--teal-deep); font-weight: 800; padding: 0; }
+  .member-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .member-chip { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 999px; padding: 7px 10px; font-weight: 800; font-size: 12px; }
+  .member-chip.active { background: var(--mint); color: var(--teal-deep); border-color: var(--teal); }
+  .member-form { display: none; grid-template-columns: 1fr auto; gap: 8px; }
+  .member-form.show { display: grid; }
+  .member-form input { padding: 8px 9px; }
   main { padding: 28px; min-width: 0; }
   .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 24px; }
   .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 999px; color: var(--teal-deep); background: var(--mint); font-size: 12px; font-weight: 800; }

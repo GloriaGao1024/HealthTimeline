@@ -20,6 +20,17 @@
       <button data-screen="assistant">AI 问答</button>
       <button data-screen="settings">隐私导出</button>
     </div>
+    <div class="member-panel">
+      <div class="member-head">
+        <span>家庭成员</span>
+        <button id="toggleMemberForm" type="button">添加</button>
+      </div>
+      <div class="member-tabs" id="memberTabs"></div>
+      <div class="member-form" id="memberForm">
+        <input id="memberNameInput" placeholder="成员姓名" />
+        <button class="btn primary" id="confirmMemberAdd" type="button">保存</button>
+      </div>
+    </div>
     <div class="privacy-note">所有 MVP 数据默认保存在本机浏览器，不上传服务器。AI 回答仅基于已保存的结构化指标，不替代医生诊断。</div>
   </aside>
 
