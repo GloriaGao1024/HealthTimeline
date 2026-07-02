@@ -316,7 +316,7 @@ function isSupportedReportFile(file) {
 
 async function uploadReportFile(file) {
   const supabase = await window.getSupabaseClient();
-  const fileName = `${Date.now()}${file.name}`;
+  const fileName = createSafeStorageFileName(file.name);
   const { error } = await supabase.storage.from(REPORTS_BUCKET).upload(fileName, file);
 
   if (error) {
@@ -329,6 +329,13 @@ async function uploadReportFile(file) {
   await createDocumentRecord(supabase, file, url);
   alert("上传成功");
   return url;
+}
+
+function createSafeStorageFileName(originalName) {
+  const extensionMatch = String(originalName || "").match(/\.([a-zA-Z0-9]+)$/);
+  const extension = extensionMatch ? extensionMatch[1].toLowerCase().replace(/[^a-z0-9]/g, "") : "bin";
+  const random = Math.random().toString(36).slice(2, 8);
+  return `${Date.now()}-${random}.${extension}`;
 }
 
 async function createDocumentRecord(supabase, file, storageUrl) {
