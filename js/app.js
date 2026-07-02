@@ -326,8 +326,29 @@ async function uploadReportFile(file) {
   const { data } = supabase.storage.from(REPORTS_BUCKET).getPublicUrl(fileName);
   const url = data.publicUrl;
   console.log("uploaded url", url);
+  await saveReportRecord(supabase, url);
   alert("上传成功");
   return url;
+}
+
+async function saveReportRecord(supabase, publicUrl) {
+  const { data, error } = await supabase
+    .from("reports")
+    .insert({
+      member_id: 1,
+      hospital: "本地体检机构",
+      report_date: today(),
+      report_type: "体检报告",
+      file_url: publicUrl
+    })
+    .select();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  console.log("report saved", data);
 }
 
 function createSafeStorageFileName(originalName) {
