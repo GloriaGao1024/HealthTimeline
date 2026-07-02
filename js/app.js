@@ -385,14 +385,17 @@ document.getElementById("loadSample").addEventListener("click", () => {
 });
 document.getElementById("parseBtn").addEventListener("click", parseText);
 document.getElementById("addBlankBtn").addEventListener("click", () => {
-  draft.push({ name: "", alias: "", value: "", unit: "", referenceRange: "", status: "ok", confidence: 1, originalText: "" });
+  draft.push({ name: "", alias: "", value: "", unit: "", referenceRange: "", status: "normal", confidence: 1, originalText: "" });
   renderDraft();
 });
 document.getElementById("clearDraft").addEventListener("click", () => { draft = []; renderDraft(); });
 
 function parseText() {
   const text = document.getElementById("rawText").value.trim();
-  if (!text) { showToast("先粘贴报告文字，或载入示例报告"); return; }
+  if (!text) {
+    alert("请先粘贴 OCR 文本或载入示例报告");
+    return;
+  }
   draft = parseIndicators(text);
   if (!draft.length) showToast("没有识别到常见指标，请手动添加字段");
   renderDraft();
@@ -418,7 +421,11 @@ function parseInlineText(text) {
     const normalizedLine = normalizeOcrLine(line);
     const hit = names.find(n => normalizedLine.toUpperCase().includes(n.toUpperCase()));
     const val = normalizedLine.match(/(-?\d+(?:\.\d+)?)/);
-    if (!hit || !val) continue;
+    if (!hit || !val) {
+      const genericItem = parseGenericIndicatorLine(normalizedLine);
+      if (genericItem) result.push(genericItem);
+      continue;
+    }
     const after = normalizedLine.slice(normalizedLine.indexOf(val[0]) + val[0].length);
     const unitMatch = after.match(/^\s*[↑↓]?\s*([a-zA-Zμuμ\/%]+(?:\/[a-zA-Z]+)?)/);
     const refMatch = normalizedLine.match(/(?:参考|范围|ref)?[:：\s]*(<\s*\d+(?:\.\d+)?|>\s*\d+(?:\.\d+)?|\d+(?:\.\d+)?\s*[-~]\s*\d+(?:\.\d+)?)/i);
@@ -437,6 +444,31 @@ function parseInlineText(text) {
     result.push(item);
   }
   return result;
+}
+
+function parseGenericIndicatorLine(line) {
+  const val = line.match(/(-?\d+(?:\.\d+)?)/);
+  if (!val) return null;
+
+  const rawName = line.slice(0, val.index).replace(/[：:]/g, " ").trim();
+  if (!rawName || rawName.length > 24) return null;
+
+  const after = line.slice(val.index + val[0].length);
+  const unitMatch = after.match(/^\s*[↑↓]?\s*([a-zA-Zμu%\/\^0-9]+(?:\/[a-zA-Z0-9]+)?)/);
+  const refMatch = line.match(/(?:参考|范围|ref)?[:：\s]*(<\s*\d+(?:\.\d+)?|>\s*\d+(?:\.\d+)?|\d+(?:\.\d+)?\s*[-~]\s*\d+(?:\.\d+)?)/i);
+  const referenceRange = refMatch ? refMatch[1].replace(/\s+/g, "") : "";
+  const explicitStatus = line.includes("↑") ? "high" : line.includes("↓") ? "low" : "";
+
+  return {
+    name: rawName,
+    alias: ALIASES[rawName] || rawName,
+    value: val[0],
+    unit: unitMatch ? normalizeUnit(unitMatch[1]) : "",
+    referenceRange,
+    status: explicitStatus || inferStatus(Number(val[0]), referenceRange),
+    confidence: refMatch ? 0.72 : 0.58,
+    originalText: line
+  };
 }
 
 function parseTableText(text) {
@@ -542,16 +574,16 @@ function canonicalName(name) {
   return map[name] || name;
 }
 function inferStatus(value, ref) {
-  if (!ref) return "pending";
+  if (!ref) return "normal";
   const range = ref.match(/^(\d+(?:\.\d+)?)[-~](\d+(?:\.\d+)?)$/);
   const lt = ref.match(/^<(\d+(?:\.\d+)?)$/);
   const gt = ref.match(/^>(\d+(?:\.\d+)?)$/);
-  if (range) return value < Number(range[1]) ? "low" : value > Number(range[2]) ? "high" : "ok";
-  if (lt) return value > Number(lt[1]) ? "high" : "ok";
-  if (gt) return value < Number(gt[1]) ? "low" : "ok";
-  return "pending";
+  if (range) return value < Number(range[1]) ? "low" : value > Number(range[2]) ? "high" : "normal";
+  if (lt) return value > Number(lt[1]) ? "high" : "normal";
+  if (gt) return value < Number(gt[1]) ? "low" : "normal";
+  return "normal";
 }
-function statusLabel(s) { return ({ high: "偏高", low: "偏低", ok: "正常", pending: "待确认" })[s] || "待确认"; }
+function statusLabel(s) { return ({ high: "偏高", low: "偏低", normal: "正常", ok: "正常", pending: "待确认" })[s] || "正常"; }
 
 function renderDraft() {
   const tbody = document.getElementById("draftRows");
@@ -566,7 +598,7 @@ function renderDraft() {
     <td><input value="${escapeHtml(d.unit)}" data-i="${i}" data-k="unit"></td>
     <td><input value="${escapeHtml(d.referenceRange)}" data-i="${i}" data-k="referenceRange"></td>
     <td><select data-i="${i}" data-k="status">
-      ${["ok","high","low","pending"].map(s => `<option value="${s}" ${d.status === s ? "selected" : ""}>${statusLabel(s)}</option>`).join("")}
+      ${["normal","high","low"].map(s => `<option value="${s}" ${d.status === s ? "selected" : ""}>${statusLabel(s)}</option>`).join("")}
     </select></td>
     <td><button class="btn danger" data-remove="${i}">删</button></td>
   </tr>`).join("");
