@@ -326,7 +326,6 @@ async function uploadReportFile(file) {
   const { data } = supabase.storage.from(REPORTS_BUCKET).getPublicUrl(fileName);
   const url = data.publicUrl;
   console.log("uploaded url", url);
-  await createDocumentRecord(supabase, file, url);
   alert("上传成功");
   return url;
 }
@@ -336,25 +335,6 @@ function createSafeStorageFileName(originalName) {
   const extension = extensionMatch ? extensionMatch[1].toLowerCase().replace(/[^a-z0-9]/g, "") : "bin";
   const random = Math.random().toString(36).slice(2, 8);
   return `${Date.now()}-${random}.${extension}`;
-}
-
-async function createDocumentRecord(supabase, file, storageUrl) {
-  const memberId = await ensureActiveFamilyMember(supabase);
-  const documentRecord = {
-    member_id: memberId,
-    title: file.name,
-    category: document.getElementById("reportType").value || "体检报告",
-    report_date: document.getElementById("reportDate").value || today(),
-    source_type: file.type === "application/pdf" ? "pdf" : "image",
-    storage_url: storageUrl,
-    created_at: new Date().toISOString()
-  };
-
-  const { error } = await supabase
-    .from(DOCUMENTS_TABLE)
-    .insert(documentRecord);
-
-  if (error) throw error;
 }
 
 document.getElementById("ocrBtn").addEventListener("click", recognizeSelectedFile);
