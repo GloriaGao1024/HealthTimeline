@@ -1,0 +1,19 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brandTile" x1="18" y1="14" x2="78" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9BE8D5"/>
+      <stop offset="1" stop-color="#28A989"/>
+    </linearGradient>
+    <filter id="brandShadow" x="0" y="0" width="96" height="96" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#1F6D6E" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#brandShadow)">
+    <rect x="12" y="10" width="72" height="72" rx="20" fill="url(#brandTile)"/>
+    <path d="M48 70C34.2 62.7 24.4 53 24.4 41.1C24.4 32.1 30.5 26.5 37.8 26.5C42.2 26.5 45.7 28.4 48 31.7C50.3 28.4 53.8 26.5 58.2 26.5C65.5 26.5 71.6 32.1 71.6 41.1C71.6 53 61.8 62.7 48 70Z" stroke="white" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="33" y="40" width="30" height="18" rx="9" fill="white"/>
+    <circle cx="41" cy="49" r="2.7" fill="#25343A"/>
+    <circle cx="55" cy="49" r="2.7" fill="#25343A"/>
+    <path d="M44 49H52" stroke="#25343A" stroke-width="2.1" stroke-linecap="round"/>
+  </g>
+</svg>

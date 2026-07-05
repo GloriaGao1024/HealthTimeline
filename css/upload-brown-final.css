@@ -1,0 +1,244 @@
+/* Final upload-page brown glass overrides. Keep this file loaded last. */
+body.auth-ready #upload .upload-tabs {
+  gap: 14px !important;
+}
+
+body.auth-ready #upload .upload-tabs button,
+#upload .upload-tabs button {
+  color: rgba(79, 53, 39, 0.82) !important;
+  border: 1.5px solid rgba(255, 248, 238, 0.78) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 238, 0.78), rgba(206, 164, 127, 0.28)),
+    rgba(143, 100, 72, 0.12) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -10px 24px rgba(112, 78, 58, 0.08),
+    0 10px 22px rgba(111, 75, 49, 0.12) !important;
+  backdrop-filter: blur(18px) saturate(1.14) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.14) !important;
+}
+
+body.auth-ready #upload .upload-tabs button.active,
+#upload .upload-tabs button.active {
+  color: #ffffff !important;
+  border-color: rgba(118, 73, 45, 0.46) !important;
+  background:
+    linear-gradient(180deg, rgba(151, 96, 60, 0.86), rgba(112, 72, 47, 0.72)),
+    rgba(122, 82, 55, 0.62) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 220, 0.52),
+    inset 0 -12px 22px rgba(77, 47, 32, 0.24),
+    0 12px 22px rgba(95, 58, 36, 0.24) !important;
+}
+
+body.auth-ready #upload .classify-box,
+#upload .classify-box {
+  color: #4f3527 !important;
+  border: 2px dashed rgba(116, 74, 48, 0.58) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 246, 232, 0.62), rgba(193, 139, 98, 0.22)),
+    rgba(130, 86, 58, 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -18px 32px rgba(91, 58, 39, 0.08),
+    0 14px 30px rgba(98, 61, 39, 0.12) !important;
+  backdrop-filter: blur(20px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.12) !important;
+}
+
+body.auth-ready #upload .classify-box h3,
+#upload .classify-box h3,
+body.auth-ready #upload .classify-box label,
+#upload .classify-box label {
+  color: #4a3023 !important;
+}
+
+body.auth-ready #upload .classify-box p,
+#upload .classify-box p {
+  color: rgba(79, 53, 39, 0.72) !important;
+}
+
+body.auth-ready #upload .classify-box select,
+#upload .classify-box select {
+  color: #4a3023 !important;
+  border-color: rgba(130, 82, 50, 0.26) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.74), rgba(235, 205, 176, 0.28)),
+    rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 8px 18px rgba(99, 64, 42, 0.08) !important;
+}
+
+/* Mobile bottom navigation: high-transparency glass so page gradients show through. */
+@media (max-width: 760px) {
+  body.auth-ready .view-all-reports,
+  .view-all-reports {
+    color: #1f2527 !important;
+  }
+
+  body.auth-ready .home-ai-card,
+  body.auth-ready .home-reports-card,
+  .home-ai-card,
+  .home-reports-card {
+    color: #2c201a !important;
+    border: 1.5px solid rgba(255, 248, 238, 0.62) !important;
+    background:
+      linear-gradient(180deg, rgba(246, 219, 195, 0.5), rgba(153, 111, 82, 0.2)),
+      rgba(124, 82, 55, 0.18) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.52),
+      inset 0 -20px 38px rgba(91, 62, 44, 0.08),
+      0 18px 38px rgba(80, 55, 38, 0.18) !important;
+    backdrop-filter: blur(22px) saturate(1.16) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(1.16) !important;
+  }
+
+  body.auth-ready .home-ai-card .section-icon,
+  body.auth-ready .home-reports-card .section-icon,
+  body.auth-ready .home-ai-card .chat-avatar,
+  body.auth-ready .home-ai-card .bot-avatar,
+  body.auth-ready .home-reports-card .report-icon,
+  body.auth-ready .home-reports-card .home-report-row .section-icon,
+  .home-ai-card .section-icon,
+  .home-reports-card .section-icon,
+  .home-ai-card .chat-avatar,
+  .home-ai-card .bot-avatar,
+  .home-reports-card .report-icon,
+  .home-reports-card .home-report-row .section-icon {
+    color: #6f4430 !important;
+    background:
+      linear-gradient(180deg, rgba(255, 246, 234, 0.68), rgba(188, 136, 96, 0.26)),
+      rgba(120, 79, 52, 0.14) !important;
+    border: 1.5px solid rgba(255, 248, 238, 0.58) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.62),
+      0 8px 16px rgba(76, 52, 36, 0.12) !important;
+    backdrop-filter: blur(14px) saturate(1.1) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.1) !important;
+  }
+
+  body.auth-ready .home-ai-card .chat-bubble,
+  body.auth-ready .home-ai-card .ai-bubble,
+  body.auth-ready .home-ai-card .home-empty-state,
+  body.auth-ready .home-reports-card .home-report-row,
+  body.auth-ready .home-reports-card .report-row,
+  body.auth-ready .home-reports-card li,
+  .home-ai-card .chat-bubble,
+  .home-ai-card .ai-bubble,
+  .home-ai-card .home-empty-state,
+  .home-reports-card .home-report-row,
+  .home-reports-card .report-row,
+  .home-reports-card li {
+    color: rgba(47, 33, 25, 0.9) !important;
+    border-color: rgba(255, 248, 238, 0.58) !important;
+    background:
+      linear-gradient(180deg, rgba(255, 250, 242, 0.54), rgba(205, 166, 132, 0.18)),
+      rgba(255, 255, 255, 0.13) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.58),
+      0 10px 24px rgba(82, 55, 38, 0.1) !important;
+  }
+
+  body.auth-ready .home-ai-card .quick-question,
+  body.auth-ready .home-ai-card .home-question-pills button,
+  body.auth-ready .home-ai-card [data-home-question],
+  .home-ai-card .quick-question,
+  .home-ai-card .home-question-pills button,
+  .home-ai-card [data-home-question] {
+    color: #5f3a28 !important;
+    border-color: rgba(255, 248, 238, 0.68) !important;
+    background:
+      linear-gradient(180deg, rgba(255, 252, 246, 0.66), rgba(194, 143, 104, 0.2)),
+      rgba(255, 255, 255, 0.16) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.64) !important;
+  }
+
+  body.auth-ready #indicatorList .timeline-node,
+  #indicatorList .timeline-node,
+  body.auth-ready .timeline-strip .timeline-node,
+  .timeline-strip .timeline-node {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    outline: 0 !important;
+  }
+
+  body.auth-ready #indicatorList .timeline-node::before,
+  body.auth-ready #indicatorList .timeline-node::after,
+  #indicatorList .timeline-node::before,
+  #indicatorList .timeline-node::after,
+  body.auth-ready .timeline-strip .timeline-node::before,
+  body.auth-ready .timeline-strip .timeline-node::after,
+  .timeline-strip .timeline-node::before,
+  .timeline-strip .timeline-node::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  body.auth-ready .mobile-topbar .mobile-brand .brand-mark,
+  .mobile-topbar .mobile-brand .brand-mark {
+    width: 31px !important;
+    height: 31px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+  }
+
+  body.auth-ready .mobile-topbar .mobile-brand .brand-mark img,
+  .mobile-topbar .mobile-brand .brand-mark img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transform: scale(2.38) !important;
+    transform-origin: center center !important;
+    border-radius: 9px !important;
+    filter: drop-shadow(0 8px 12px rgba(82, 54, 36, 0.18)) !important;
+  }
+
+  body.auth-ready .app-shell > aside,
+  .app-shell > aside {
+    background:
+      linear-gradient(180deg, rgba(255, 252, 245, 0.24), rgba(169, 126, 94, 0.16)),
+      rgba(255, 255, 255, 0.1) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.56) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.58),
+      inset 0 -16px 26px rgba(104, 75, 55, 0.08),
+      0 18px 42px rgba(75, 55, 42, 0.16) !important;
+    backdrop-filter: blur(26px) saturate(1.28) !important;
+    -webkit-backdrop-filter: blur(26px) saturate(1.28) !important;
+  }
+
+  body.auth-ready .app-shell > aside .nav button,
+  .app-shell > aside .nav button {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 245, 232, 0.12)),
+      rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.48) !important;
+    color: rgba(62, 45, 34, 0.86) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      0 8px 20px rgba(74, 52, 37, 0.08) !important;
+    backdrop-filter: blur(18px) saturate(1.18) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.18) !important;
+  }
+
+  body.auth-ready .app-shell > aside .nav button.active,
+  .app-shell > aside .nav button.active {
+    background:
+      linear-gradient(180deg, rgba(255, 251, 242, 0.48), rgba(210, 164, 124, 0.22)),
+      rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.68) !important;
+    color: #5f3a28 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -10px 18px rgba(122, 82, 55, 0.1),
+      0 10px 24px rgba(84, 57, 38, 0.12) !important;
+  }
+}

@@ -1,4 +1,15 @@
 {
+  "name": "healthtimeline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HealthTimeline static web app with a Node.js server for OCR and AI proxy APIs.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0"
   }
